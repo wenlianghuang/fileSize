@@ -1,12 +1,9 @@
-FROM golang:1.19-buster
+FROM golang:alpine
 
-WORKDIR /app 
+WORKDIR /app
 
-COPY go.* ./
-RUN go mod download
+COPY . .
 
-COPY main.go .
+RUN go build -o main .
 
-#RUN go build -v -o main 
-
-CMD ["go","run","main.go"]
+CMD ["/app/main"]

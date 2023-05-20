@@ -6,9 +6,11 @@ import (
 	"path/filepath"
 )
 
+//docker run -v /d/:/d/ <docker-image>
 func main() {
-	//root := "D:\\go_practice\\"
-	root := "/app/go_practice"
+
+	//root := "D:\\"
+	root := "/d/"
 	gitRepos := []string{}
 	gitNotRepos := []string{}
 	files, err := os.ReadDir(root)
@@ -20,12 +22,14 @@ func main() {
 	for _, file := range files {
 		if file.IsDir() {
 			path := root + file.Name()
-			fmt.Println(path)
-			/*
-				if path == "D:\\$RECYCLE.BIN" || path == "D:\\Recovery" || path == "D:\\System Volume Information" {
-					continue
-				}
-			*/
+			//fmt.Println(path)
+
+			//if path == "D:\\$RECYCLE.BIN" || path == "D:\\Recovery" /*|| path == "D:\\System Volume Information"*/ {
+			//if path == "/d/$RECYCLE.BIN" || path == "/d/Recovery" || path == "/d/System Volume Information" || path == "/d/xampp" {
+			if path == "/d/$RECYCLE.BIN" {
+				continue
+			}
+
 			_, err := os.Stat(path + "/.git")
 			if err == nil {
 				//fmt.Println(path + " is a Git repository")
@@ -40,8 +44,14 @@ func main() {
 
 	// Recursive the mother folder to find all the folder which is not git initialized
 	for _, norepo := range gitNotRepos {
+
 		err := filepath.Walk(norepo, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
+				// If the directory permission is too high, show the error and pass this directory
+				if os.IsPermission(err) {
+					fmt.Printf("Permission denied: %v\n", err)
+					return filepath.SkipDir
+				}
 				return err
 			}
 			if info.IsDir() {
@@ -68,7 +78,8 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println(repo)
+		fmt.Println(repo + " is Git repo")
+
 		//cmd := exec.Command("git", "status")
 		//output, err := cmd.Output()
 		//if err != nil {
